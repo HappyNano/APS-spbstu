@@ -6,21 +6,13 @@
 
 namespace APS
 {
-  class Request
+  struct Request
   {
-    public:
-      using this_t = Request;
-
-      Request();
-      Request(const this_t& obj) = default;
-      Request(this_t&&) = default;
-
-      this_t& operator=(const this_t& obj) = default;
-      this_t& operator=(this_t&&) = default;
-
-    private:
-      APS::TimeManager::time_unit_t _create_time;
-
+    int id;
+    int source_id;
+    APS::TimeManager::time_unit_t create_time;
+    APS::TimeManager::time_unit_t registered_time;
+    APS::TimeManager::time_unit_t processed_time;
   };
 }
 

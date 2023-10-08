@@ -26,7 +26,7 @@ namespace APS
     TimeManager(this_t &&) = delete;
 
     this_t & operator=(const this_t & obj) = delete;
-    this_t & operator=(this_t &&) = delete;
+    this_t & operator=(this_t &&) noexcept = delete;
 
     /**
      * \brief Method to call function in time point

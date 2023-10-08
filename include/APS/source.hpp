@@ -17,12 +17,15 @@ namespace APS
     using shared = std::shared_ptr< Source >;
     using time_unit_t = TimeManager::time_unit_t;
 
+    static int all_request_count;
+    static int all_sources_count;
+
     Source(time_unit_t delay, const TimeManager::shared & time_manager_);
     Source(const this_t & obj) = delete;
     Source(this_t &&) = delete;
 
     this_t & operator=(const this_t & obj) = delete;
-    this_t & operator=(this_t &&) = delete;
+    this_t & operator=(this_t &&) noexcept = delete;
 
     /**
      * \brief Function to subsribe for creating requests
@@ -39,6 +42,7 @@ namespace APS
     APS::Subscribers< Request > _subs;
     __int16_t _requests_count; // Number of requests maked by this source
     time_unit_t _delay;
+    int _id;
 
     /**
      * \brief Subscribe to a future request after a delay time

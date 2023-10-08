@@ -25,7 +25,7 @@ namespace APS
     Subscribers(this_t &&) = delete;
 
     this_t & operator=(const this_t & obj) = delete;
-    this_t & operator=(this_t &&) = delete;
+    this_t & operator=(this_t &&) noexcept = delete;
 
     void subscribe(const function_t &);
 

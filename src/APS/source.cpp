@@ -1,11 +1,17 @@
 #include "APS/source.hpp"
 
+int APS::Source::all_request_count = 0;
+int APS::Source::all_sources_count = 0;
+
 APS::Source::Source(time_unit_t delay, const TimeManager::shared & time_manager_ptr):
   _time_manager_ptr{ time_manager_ptr },
   _subs{},
   _requests_count{ 0 },
-  _delay{ delay }
-{}
+  _delay{ delay },
+  _id{ all_sources_count++ }
+{
+  _subscribeForTimeManager();
+}
 
 void APS::Source::subscribe(APS::Subscribers< Request >::function_t function)
 {
@@ -14,7 +20,7 @@ void APS::Source::subscribe(APS::Subscribers< Request >::function_t function)
 
 void APS::Source::createRequest()
 {
-  Request req{};
+  Request req{ Source::all_request_count++, _id, _time_manager_ptr->timeNow(), 0, 0 };
   ++_requests_count;
 
   _subscribeForTimeManager();
