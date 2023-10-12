@@ -4,6 +4,7 @@
 #include <memory>
 #include "APS/time_manager.hpp"
 #include "APS/request.hpp"
+#include "APS/utility/shared_counter.hpp"
 
 namespace APS
 {
@@ -16,11 +17,12 @@ namespace APS
     using this_t = Source;
     using shared = std::shared_ptr< Source >;
     using time_unit_t = TimeManager::time_unit_t;
+    using counter_t = SharedCounter;
 
-    static int all_request_count;
-    static int all_sources_count;
-
-    Source(time_unit_t delay, const TimeManager::shared & time_manager_);
+    Source(time_unit_t delay,
+     int id,
+     counter_t req_counter,
+     const TimeManager::shared & time_manager_);
     Source(const this_t & obj) = delete;
     Source(this_t &&) = delete;
 
@@ -34,7 +36,10 @@ namespace APS
     void subscribe(APS::Subscribers< Request >::function_t function);
     void createRequest();
 
-    Source::shared makeShared(time_unit_t delay, const TimeManager::shared & time_manager_ptr);
+    Source::shared makeShared(time_unit_t delay,
+     int id,
+     counter_t req_counter,
+     const TimeManager::shared & time_manager_ptr);
 
    private:
     TimeManager::shared _time_manager_ptr;
@@ -42,6 +47,7 @@ namespace APS
     APS::Subscribers< Request > _subs;
     __int16_t _requests_count; // Number of requests maked by this source
     time_unit_t _delay;
+    counter_t _requests_counter;
     int _id;
 
     /**

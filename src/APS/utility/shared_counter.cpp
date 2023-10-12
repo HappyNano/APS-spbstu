@@ -4,7 +4,12 @@ APS::SharedCounter::SharedCounter(ctype_t start):
   _counter_ptr{ std::make_shared< ctype_t >(start) }
 {}
 
-typename APS::SharedCounter::ctype_t APS::SharedCounter::value()
+APS::SharedCounter::operator ctype_t() const
+{
+  return value();
+}
+
+typename APS::SharedCounter::ctype_t APS::SharedCounter::value() const
 {
   return *_counter_ptr;
 }

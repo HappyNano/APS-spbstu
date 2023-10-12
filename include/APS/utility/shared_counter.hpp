@@ -12,11 +12,12 @@ namespace APS
   {
    public:
     using this_t = SharedCounter;
-    using ctype_t = long int;
+    using ctype_t = int;
 
     SharedCounter(ctype_t start);
 
-    ctype_t value();
+    operator ctype_t() const;
+    ctype_t value() const;
 
     void incremect();
     void decrement();
