@@ -19,10 +19,7 @@ namespace APS
     using time_unit_t = TimeManager::time_unit_t;
     using counter_t = SharedCounter;
 
-    Source(time_unit_t delay,
-     int id,
-     counter_t req_counter,
-     const TimeManager::shared & time_manager_);
+    Source(time_unit_t delay, int id, const counter_t& req_counter, const TimeManager::shared & time_manager_);
     Source(const this_t & obj) = delete;
     Source(this_t &&) = delete;
 
@@ -36,10 +33,7 @@ namespace APS
     void subscribe(APS::Subscribers< Request >::function_t function);
     void createRequest();
 
-    Source::shared makeShared(time_unit_t delay,
-     int id,
-     counter_t req_counter,
-     const TimeManager::shared & time_manager_ptr);
+    Source::shared makeShared(time_unit_t delay, int id, counter_t req_counter, const TimeManager::shared & time_manager_ptr);
 
    private:
     TimeManager::shared _time_manager_ptr;
