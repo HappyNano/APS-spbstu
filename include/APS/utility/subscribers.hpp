@@ -22,10 +22,12 @@ namespace APS
 
     Subscribers() = default;
     Subscribers(const this_t & obj) = delete;
-    Subscribers(this_t &&) = delete;
+    Subscribers(this_t &&) noexcept;
 
     this_t & operator=(const this_t & obj) = delete;
-    this_t & operator=(this_t &&) noexcept = delete;
+    this_t & operator=(this_t &&) noexcept;
+
+    void swap(this_t &) noexcept;
 
     void subscribe(const function_t &);
 
@@ -34,6 +36,28 @@ namespace APS
    private:
     std::vector< function_t > _subscribers;
   };
+}
+
+template < typename... Args >
+APS::Subscribers< Args... >::Subscribers(this_t && obj) noexcept:
+  _subscribers{ std::move(obj._subscribers) }
+{}
+
+template < typename... Args >
+typename APS::Subscribers< Args... >::this_t & APS::Subscribers< Args... >::operator=(this_t && obj) noexcept
+{
+  if (this != std::addressof(obj))
+  {
+    this_t tmp(std::move(obj));
+    swap(obj);
+  }
+  return *this;
+}
+
+template < typename... Args >
+void APS::Subscribers< Args... >::swap(this_t & obj) noexcept
+{
+  std::swap(_subscribers, obj._subscribers);
 }
 
 template < typename... Args >

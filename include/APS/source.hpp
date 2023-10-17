@@ -28,7 +28,7 @@ namespace APS
 
     /**
      * \brief Function to subsribe for creating requests
-     * \param function function that
+     * \param function function
      */
     void subscribe(APS::Subscribers< Request >::function_t function);
     void createRequest();
