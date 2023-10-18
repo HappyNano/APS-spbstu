@@ -111,6 +111,11 @@ void APS::Buffer::subscribe(const APS::Subscribers<>::function_t & function)
   _subs.subscribe(function);
 }
 
+const typename APS::Buffer::vec_type & APS::Buffer::getBuffer() const
+{
+  return _req_memory;
+}
+
 // Static function
 typename APS::Buffer::shared APS::Buffer::makeShared(size_t size, const time_manager_ptr_t & time_manager_ptr)
 {

@@ -13,6 +13,7 @@ namespace APS
     using this_t = Buffer;
     using time_manager_ptr_t = APS::TimeManager::shared;
     using shared = std::shared_ptr< Buffer >;
+    using vec_type = std::vector< std::optional< std::pair< TimeManager::time_unit_t, Request > > >;
 
     Buffer(size_t size, const time_manager_ptr_t & time_manager_ptr);
     Buffer(const this_t & obj) = delete;
@@ -62,6 +63,8 @@ namespace APS
      * \param function function
      */
     void subscribe(const APS::Subscribers<>::function_t & function);
+
+    const vec_type & getBuffer() const;
 
     static shared makeShared(size_t size, const time_manager_ptr_t & time_manager_ptr);
 

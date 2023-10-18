@@ -5,6 +5,33 @@
 #include <functional>
 #include <type_traits>
 
+namespace
+{
+  template < typename T >
+  struct reversion_wrapper
+  {
+    T & iterable;
+  };
+
+  template < typename T >
+  auto begin(reversion_wrapper< T > w)
+  {
+    return std::rbegin(w.iterable);
+  }
+
+  template < typename T >
+  auto end(reversion_wrapper< T > w)
+  {
+    return std::rend(w.iterable);
+  }
+
+  template < typename T >
+  reversion_wrapper< T > reverse(T && iterable)
+  {
+    return { iterable };
+  }
+}
+
 namespace APS
 {
   /**
@@ -69,7 +96,7 @@ void APS::Subscribers< Args... >::subscribe(const function_t & function)
 template < typename... Args >
 void APS::Subscribers< Args... >::invoke(Args... args)
 {
-  for (auto && subscriber: _subscribers)
+  for (auto && subscriber: reverse(_subscribers))
   {
     subscriber(args...);
   }

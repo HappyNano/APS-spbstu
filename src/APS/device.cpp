@@ -50,13 +50,14 @@ void APS::Device::registerRequest(const Request & req) noexcept(false)
   }
   _request_opt.emplace(req);
   auto delay_time = _erand.get();
-  std::cout << "\033[92mDevice [" << getId() << "] Registered Request " << req.id << " from source " << req.source_id << " for time "
-            << delay_time << " (ms)\033[0m \n";
+  // std::cout << "\033[92mDevice[" << getId() << "] Registered Request " << req.id << " from source " << req.source_id << " for time "
+  //           << delay_time << " (ms)\033[0m \n";
   _time_manager_ptr->subscribeDelay(delay_time,
    [&]()
    {
      _freeDevice();
    });
+  _subs.invoke();
 }
 
 const typename APS::Device::req_opt_t & APS::Device::getRequest() const

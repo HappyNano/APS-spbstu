@@ -14,6 +14,7 @@ namespace APS
    public:
     Engine(size_t sources_count, size_t buffer_size, size_t devices_count, double alpha, double beta, double lambda);
 
+    void printState(int from_source = -1);
     void run();
 
    private:
