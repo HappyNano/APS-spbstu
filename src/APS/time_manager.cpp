@@ -24,14 +24,14 @@ void APS::TimeManager::subscribeDelay(time_unit_t time_delay, const function_t &
 void APS::TimeManager::stepToEvent()
 {
   // wait for special event
-  for (auto && event: _future_event)
+  auto iter = std::begin(_future_event);
+  if (iter == std::end(_future_event))
   {
-    if (event.first < _time_now_ms)
-    {
-      break;
-    }
-    event.second.invoke();
+    return;
   }
+  _time_now_ms = iter->first;
+  iter->second.invoke();
+  _future_event.erase(iter);
 }
 
 typename APS::TimeManager::time_unit_t APS::TimeManager::timeNow() const

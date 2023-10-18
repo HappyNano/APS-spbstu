@@ -16,7 +16,7 @@ namespace APS
   {
    public:
     using this_t = TimeManager;
-    using time_unit_t = __int128_t;
+    using time_unit_t = double;
     using shared = std::shared_ptr< TimeManager >;
     using function_t = APS::Subscribers<>::function_t;
 

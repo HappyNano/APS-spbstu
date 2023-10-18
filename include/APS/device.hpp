@@ -6,6 +6,7 @@
 #include "APS/request.hpp"
 #include "APS/time_manager.hpp"
 #include "APS/utility/shared_counter.hpp"
+#include "APS/utility/exponential_random.hpp"
 
 namespace APS
 {
@@ -17,7 +18,7 @@ namespace APS
     using req_opt_t = std::optional< Request >;
     using subs_func_t = APS::Subscribers<>::function_t;
 
-    Device(APS::TimeManager::shared time_manager_ptr, const counter_t & processed_counter);
+    Device(int id, APS::TimeManager::shared time_manager_ptr, const counter_t & processed_counter);
     Device(const this_t &) = default;
     Device(this_t &&) noexcept;
     ~Device() = default;
@@ -25,6 +26,8 @@ namespace APS
     this_t & operator=(const this_t &) = default;
     this_t & operator=(this_t &&) noexcept;
     void swap(this_t &) noexcept;
+
+    int getId() const;
 
     /**
      * \throw std::logic_error if device busy
@@ -45,7 +48,7 @@ namespace APS
 
     /**
      * \brief Function to subsribe for device release
-     * \note Connect here checkBuffer method of APS::Buffer
+     * \note Connect here "check" method of APS::DeviceManager
      * \param function function
      */
     void subscribe(const subs_func_t & function);
@@ -55,6 +58,8 @@ namespace APS
     APS::SharedCounter _processed_counter;
     APS::TimeManager::shared _time_manager_ptr;
     APS::Subscribers<> _subs;
+    APS::ExponentialRandom _erand;
+    int _id;
 
     void _freeDevice();
   };

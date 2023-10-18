@@ -8,7 +8,7 @@ APS::Buffer::Buffer(size_t size, const time_manager_ptr_t & time_manager_ptr):
   _req_memory{},
   _subs{}
 {
-  _req_memory.reserve(size);
+  _req_memory.resize(size);
 }
 
 bool APS::Buffer::is_avaible() const
@@ -99,11 +99,20 @@ void APS::Buffer::registerRequest(const Request & req)
    {
      return !el.has_value();
    });
-  _req_memory_iter_toInsert->emplace(_time_manager_ptr->timeNow(), req);
+
+  auto req_tmp = req;
+  req_tmp.registered_time = _time_manager_ptr->timeNow();
+  _req_memory_iter_toInsert->emplace(_time_manager_ptr->timeNow(), req_tmp);
+  _subs.invoke();
+}
+
+void APS::Buffer::subscribe(const APS::Subscribers<>::function_t & function)
+{
+  _subs.subscribe(function);
 }
 
 // Static function
-typename APS::Buffer::shared APS::Buffer::makeShared(size_t size)
+typename APS::Buffer::shared APS::Buffer::makeShared(size_t size, const time_manager_ptr_t & time_manager_ptr)
 {
-  return std::make_shared< Buffer >(size);
+  return std::make_shared< Buffer >(size, time_manager_ptr);
 }

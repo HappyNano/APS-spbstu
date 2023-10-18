@@ -12,7 +12,12 @@ APS::DeviceManager::DeviceManager(size_t size,
 {
   for (size_t i = 0; i < size; ++i)
   {
-    _devices.emplace_back(time_manager_ptr, processed_counter);
+    _devices.emplace_back(i, time_manager_ptr, processed_counter);
+    _devices.back().subscribe(
+     [this]()
+     {
+       this->check();
+     });
   }
 }
 
@@ -32,4 +37,19 @@ void APS::DeviceManager::registerRequest(const Request & req) noexcept(false)
   auto check_device_avaibility = std::bind(&Device::isAvaible, std::placeholders::_1);
   auto device_iter = std::find_if(std::begin(_devices), std::end(_devices), check_device_avaibility);
   device_iter->registerRequest(req);
+}
+
+typename APS::DeviceManager::devices_t & APS::DeviceManager::getDevices()
+{
+  return _devices;
+}
+
+void APS::DeviceManager::check()
+{
+  if (!isAvaible() || _buffer_ptr->is_empty())
+  {
+    return;
+  }
+
+  registerRequest(_buffer_ptr->getRequestByPriority().value());
 }

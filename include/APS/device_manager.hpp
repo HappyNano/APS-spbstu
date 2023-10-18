@@ -13,6 +13,7 @@ namespace APS
     using counter_t = APS::SharedCounter;
     using timeManager_ptr_t = APS::TimeManager::shared;
     using buffer_ptr_t = APS::Buffer::shared;
+    using devices_t = std::vector< APS::Device >;
 
     DeviceManager(size_t size, timeManager_ptr_t time_manager_ptr, const counter_t & processed_counter, buffer_ptr_t buffer_ptr);
     ~DeviceManager() = default;
@@ -29,8 +30,15 @@ namespace APS
      */
     void registerRequest(const Request & req) noexcept(false);
 
+    devices_t & getDevices();
+
+    /**
+     * \brief Function that checking buffer
+     */
+    void check();
+
    private:
-    std::vector< APS::Device > _devices;
+    devices_t _devices;
     buffer_ptr_t _buffer_ptr;
   };
 }
