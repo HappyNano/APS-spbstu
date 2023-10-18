@@ -3,8 +3,12 @@
 #include <stdexcept>
 #include <functional>
 
-APS::DeviceManager::DeviceManager(size_t size, APS::TimeManager::shared time_manager_ptr, const counter_t & processed_counter):
-  _devices{}
+APS::DeviceManager::DeviceManager(size_t size,
+ timeManager_ptr_t time_manager_ptr,
+ const counter_t & processed_counter,
+ buffer_ptr_t buffer_ptr):
+  _devices{},
+  _buffer_ptr{ buffer_ptr }
 {
   for (size_t i = 0; i < size; ++i)
   {

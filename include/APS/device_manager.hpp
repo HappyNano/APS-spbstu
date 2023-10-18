@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "APS/device.hpp"
+#include "APS/buffer.hpp"
 
 namespace APS
 {
@@ -10,8 +11,10 @@ namespace APS
   {
    public:
     using counter_t = APS::SharedCounter;
+    using timeManager_ptr_t = APS::TimeManager::shared;
+    using buffer_ptr_t = APS::Buffer::shared;
 
-    DeviceManager(size_t size, APS::TimeManager::shared time_manager_ptr, const counter_t & processed_counter);
+    DeviceManager(size_t size, timeManager_ptr_t time_manager_ptr, const counter_t & processed_counter, buffer_ptr_t buffer_ptr);
     ~DeviceManager() = default;
 
     /**
@@ -28,6 +31,7 @@ namespace APS
 
    private:
     std::vector< APS::Device > _devices;
+    buffer_ptr_t _buffer_ptr;
   };
 }
 

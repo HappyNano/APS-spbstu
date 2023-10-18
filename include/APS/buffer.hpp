@@ -11,9 +11,10 @@ namespace APS
   {
    public:
     using this_t = Buffer;
+    using time_manager_ptr_t = APS::TimeManager::shared;
     using shared = std::shared_ptr< Buffer >;
 
-    Buffer(size_t size);
+    Buffer(size_t size, const time_manager_ptr_t& time_manager_ptr);
     Buffer(const this_t & obj) = delete;
     Buffer(this_t &&) = delete;
 
@@ -59,8 +60,10 @@ namespace APS
     static shared makeShared(size_t size);
 
    private:
-    std::vector< std::pair< TimeManager::time_unit_t, Request > > _req_memory;
-    APS::Subscribers<> _subs;
+    using vec_elem_t = std::pair< TimeManager::time_unit_t, Request >;
+    time_manager_ptr_t _time_manager_ptr;
+    std::vector< std::optional< vec_elem_t > > _req_memory;
+    APS::Subscribers< Request > _subs;
   };
 }
 
