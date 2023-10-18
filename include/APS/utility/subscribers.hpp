@@ -9,7 +9,7 @@ namespace APS
 {
   /**
    * \brief Class Subscribers (Template)
-   * \param F - function type
+   * \param Args types of params of functions
    */
   template < typename... Args >
   class Subscribers
