@@ -53,17 +53,37 @@ void APS::Engine::printState(int from_source)
 {
   static TimeManager::time_unit_t last_time = 0;
   std::string res;
-  if (from_source != -1)
-  {
-    res += "\033[92mNew request from source ";
-    res += std::to_string(from_source);
-    res += "\033[0m ";
-    std::cout << res << std::endl;
-    return;
-  }
+  // if (from_source != -1)
+  // {
+  //   res += "\033[92mNew request from source ";
+  //   res += std::to_string(from_source);
+  //   res += "\033[0m ";
+  //   std::cout << res << std::endl;
+  //   return;
+  // }
   res += "Time ";
   res += std::to_string(_time_manager_ptr->timeNow());
-  res += " (ms) \t Buffer: ";
+  res += " (ms) \t";
+
+  res += " Sources: ";
+  int i = 0;
+  for (auto && source: _sources)
+  {
+    if (i == from_source)
+    {
+      res += "\033[92m";
+      res += "[" + std::to_string(i) + "]";
+    }
+    else
+    {
+      res += "\033[94m";
+      res += "[-]";
+    }
+    res += "\033[0m ";
+    ++i;
+  }
+
+  res += " Buffer: ";
   for (auto && buf_item: _buffer_ptr->getBuffer())
   {
     if (buf_item.has_value())
@@ -78,6 +98,7 @@ void APS::Engine::printState(int from_source)
     }
     res += "\033[0m ";
   }
+
   res += "Devices: ";
   for (auto && device: _device_manager.getDevices())
   {

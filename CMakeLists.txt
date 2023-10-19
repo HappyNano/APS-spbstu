@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.12)
-project(APS VERSION 0)
+project(APS VERSION 0 LANGUAGES CXX)
+
+# For QT
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
 
 # Включаем генерацию compile_commands.json
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -23,13 +28,28 @@ if(GIT_FOUND AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.gitmodules")
     endif()
 endif()
 
+# QT Libs
+
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
+
 # Добавляем пути к заголовочным файлам
 
 include(${SRC_DIR}/src.cmake)
+# QT
+include(${INCLUDE_DIR}/qtinclude.cmake)
+include(${SRC_DIR}/qtsrc.cmake)
+
+set(PROJECT_SOURCES
+    ${SOURCES}
+    ${QTSOURCES}
+    ${QTINCLUDE}
+)
 
 # Создаем исполняемый файл
-add_executable(${PROJECT_NAME} ${SOURCES})
+add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
 
+target_link_libraries(${PROJECT_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_include_directories(${PROJECT_NAME} PRIVATE ${INCLUDE_DIR})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY})
