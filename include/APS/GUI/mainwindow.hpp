@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include <QStandardItemModel>
 
+#include "APS/engine.hpp"
+
 QT_BEGIN_NAMESPACE
 namespace Ui
 {
@@ -21,6 +23,7 @@ class MainWindow: public QMainWindow
 
   void showStepModeTab();
   void stopMode();
+  void stepMode_stepButton();
 
  public slots:
   void sclickedSlot();
@@ -29,7 +32,10 @@ class MainWindow: public QMainWindow
   Ui::MainWindow * ui;
   QStandardItemModel * model;
 
+  std::unique_ptr< APS::Engine > _engine_ptr;
+
   void _setDefaultValues();
+  void _clearStepMode();
   bool _checkValues();
 };
 

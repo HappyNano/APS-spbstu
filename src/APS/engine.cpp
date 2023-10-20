@@ -34,7 +34,7 @@ APS::Engine::Engine(size_t sources_count, size_t buffer_size, size_t devices_cou
   for (auto && device: _device_manager.getDevices())
   {
     device.subscribe(
-     [this, &device]()
+     [this, &device](const Request &)
      {
        //  if (device.isAvaible())
        //  {
@@ -123,7 +123,7 @@ void APS::Engine::run()
 {
   while (_createdReq_counter.value() < 100)
   {
-    _time_manager_ptr->stepToEvent();
+    step();
     // std::cin.get();
   }
 
@@ -131,4 +131,24 @@ void APS::Engine::run()
   std::cout << "Created: " << _createdReq_counter.value() << '\n';
   std::cout << "Processed: " << _processedReq_counter.value() << '\n';
   std::cout << "Rejected: " << _rejectReq_counter.value() << '\n';
+}
+
+void APS::Engine::step()
+{
+  _time_manager_ptr->stepToEvent();
+}
+
+APS::SharedCounter::ctype_t APS::Engine::getCreated() const
+{
+  return _createdReq_counter.value();
+}
+
+APS::SharedCounter::ctype_t APS::Engine::getRejected() const
+{
+  return _rejectReq_counter.value();
+}
+
+APS::SharedCounter::ctype_t APS::Engine::getProcessed() const
+{
+  return _processedReq_counter.value();
 }

@@ -16,7 +16,7 @@ namespace APS
     using this_t = Device;
     using counter_t = APS::SharedCounter;
     using req_opt_t = std::optional< Request >;
-    using subs_func_t = APS::Subscribers<>::function_t;
+    using subs_func_t = APS::Subscribers< Request >::function_t;
 
     Device(int id, APS::TimeManager::shared time_manager_ptr, const counter_t & processed_counter);
     Device(const this_t &) = default;
@@ -57,7 +57,7 @@ namespace APS
     std::optional< Request > _request_opt;
     APS::SharedCounter _processed_counter;
     APS::TimeManager::shared _time_manager_ptr;
-    APS::Subscribers<> _subs;
+    APS::Subscribers< Request > _subs;
     APS::ExponentialRandom _erand;
     int _id;
 

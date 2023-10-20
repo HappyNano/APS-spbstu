@@ -16,6 +16,11 @@ namespace APS
 
     void printState(int from_source = -1);
     void run();
+    void step();
+
+    SharedCounter::ctype_t getCreated() const;
+    SharedCounter::ctype_t getRejected() const;
+    SharedCounter::ctype_t getProcessed() const;
 
    private:
     // Counters

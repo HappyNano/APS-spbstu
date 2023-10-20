@@ -14,7 +14,7 @@ APS::DeviceManager::DeviceManager(size_t size,
   {
     _devices.emplace_back(i, time_manager_ptr, processed_counter);
     _devices.back().subscribe(
-     [this]()
+     [this](const Request &)
      {
        this->check();
      });

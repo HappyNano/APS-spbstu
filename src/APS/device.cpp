@@ -49,6 +49,8 @@ void APS::Device::registerRequest(const Request & req) noexcept(false)
     throw std::logic_error("Device has already request");
   }
   _request_opt.emplace(req);
+  _request_opt.value().registered_time = _time_manager_ptr->timeNow();
+
   auto delay_time = _erand.get();
   // std::cout << "\033[92mDevice[" << getId() << "] Registered Request " << req.id << " from source " << req.source_id << " for time "
   //           << delay_time << " (ms)\033[0m \n";
@@ -57,7 +59,7 @@ void APS::Device::registerRequest(const Request & req) noexcept(false)
    {
      _freeDevice();
    });
-  _subs.invoke();
+  _subs.invoke(req);
 }
 
 const typename APS::Device::req_opt_t & APS::Device::getRequest() const
@@ -77,8 +79,9 @@ void APS::Device::subscribe(const subs_func_t & function)
 
 void APS::Device::_freeDevice()
 {
-  _request_opt.value().processed_time = _time_manager_ptr->timeNow(); // Now unused
+  Request req = _request_opt.value();
+  req.processed_time = _time_manager_ptr->timeNow(); // Now unused
   _request_opt.reset();
   ++_processed_counter;
-  _subs.invoke();
+  _subs.invoke(req);
 }
