@@ -1,7 +1,8 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef APS_GUI_MAINWINDOW_HPP
+#define APS_GUI_MAINWINDOW_HPP
 
 #include <QMainWindow>
+#include <QStandardItemModel>
 
 QT_BEGIN_NAMESPACE
 namespace Ui
@@ -18,10 +19,18 @@ class MainWindow: public QMainWindow
   MainWindow(QWidget * parent = nullptr);
   ~MainWindow();
 
+  void showStepModeTab();
+  void stopMode();
+
  public slots:
   void sclickedSlot();
 
  private:
   Ui::MainWindow * ui;
+  QStandardItemModel * model;
+
+  void _setDefaultValues();
+  bool _checkValues();
 };
-#endif // MAINWINDOW_H
+
+#endif

@@ -16,4 +16,4 @@ if [[ "$1" == "--configure" ]]; then
 fi
 
 # Выполняем make для компиляции проекта
-cmake --build .
+cmake --build . -j 12

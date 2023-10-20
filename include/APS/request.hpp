@@ -10,6 +10,7 @@ namespace APS
   {
     int id;
     int source_id;
+    int source_req_number;
     APS::TimeManager::time_unit_t create_time;
     APS::TimeManager::time_unit_t registered_time;
     APS::TimeManager::time_unit_t processed_time;

@@ -5,18 +5,19 @@
 
 #define SOURCES 3
 #define BUFFER 4
-#define DEVICES 2
+#define DEVICES 3
 #define ALPHA 1
-#define BETA 2
+#define BETA 1.5
 #define LAMBDA 5
 
-void run()
+int run()
 {
   APS::Engine engine(SOURCES, BUFFER, DEVICES, ALPHA, BETA, LAMBDA);
   engine.run();
+  return 0;
 }
 
-#include "APS/GUI/mainwindow.h"
+#include "APS/GUI/mainwindow.hpp"
 
 #include <QApplication>
 #include <QLocale>
@@ -24,6 +25,7 @@ void run()
 
 int main(int argc, char * argv[])
 {
+  // return run();
   QApplication a(argc, argv);
 
   QTranslator translator;
