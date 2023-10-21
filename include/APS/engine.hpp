@@ -34,6 +34,10 @@ namespace APS
     APS::Buffer::shared _buffer_ptr;
     APS::RequestManager _req_manager;
     APS::DeviceManager _device_manager;
+
+   public:
+    //
+    APS::Subscribers< const APS::Request & > _update_subs;
   };
 }
 

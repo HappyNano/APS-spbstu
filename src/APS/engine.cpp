@@ -9,7 +9,8 @@ APS::Engine::Engine(size_t sources_count, size_t buffer_size, size_t devices_cou
   _sources{},
   _buffer_ptr{ Buffer::makeShared(buffer_size, _time_manager_ptr) },
   _req_manager{ _buffer_ptr, _rejectReq_counter },
-  _device_manager{ devices_count, _time_manager_ptr, _processedReq_counter, _buffer_ptr }
+  _device_manager{ devices_count, _time_manager_ptr, _processedReq_counter, _buffer_ptr },
+  _update_subs{}
 {
   for (int i = 0; i < sources_count; ++i)
   {
@@ -17,9 +18,7 @@ APS::Engine::Engine(size_t sources_count, size_t buffer_size, size_t devices_cou
     _sources.back()->subscribe(
      [this, i](const Request & req)
      {
-       //  std::cout << "\033[94mSource[" << i << "] generated request in time " << this->_time_manager_ptr->timeNow() << "
-       //  \t(ms)\033[0m\n";
-       printState(i);
+       _update_subs.invoke(req);
        this->_req_manager.registerRequest(req);
      });
   }
@@ -28,23 +27,16 @@ APS::Engine::Engine(size_t sources_count, size_t buffer_size, size_t devices_cou
   _buffer_ptr->subscribe(
    [this]()
    {
+     this->_update_subs.invoke(Request{});
      this->_device_manager.check();
    });
 
   for (auto && device: _device_manager.getDevices())
   {
     device.subscribe(
-     [this, &device](const Request &)
+     [this, &device](const Request & req)
      {
-       //  if (device.isAvaible())
-       //  {
-       //    std::string res;
-       //    res += "\033[92mDevice[" + std::to_string(device.getId()) + "] released ";
-       //    res += "\033[0m ";
-       //    std::cout << res << std::endl;
-       //  }
-       //  std::cout << "Device[" << device.getId() << "] Released\n";
-       printState();
+       _update_subs.invoke(req);
      });
   }
 }

@@ -32,26 +32,47 @@ void MainWindow::showStepModeTab()
     return;
   }
 
-  _engine_ptr = std::make_unique< APS::Engine >(ui->sourcesValue->value(),
-   ui->bufferSizeValue->value(),
-   ui->devicesValue->value(),
+  const auto sourcesSize = ui->sourcesValue->value();
+  const auto bufferSize = ui->bufferSizeValue->value();
+  const auto devicesSize = ui->devicesValue->value();
+
+  _engine_ptr = std::make_unique< APS::Engine >(sourcesSize,
+   bufferSize,
+   devicesSize,
    ui->alphaValue->value(),
    ui->betaValue->value(),
    ui->lambdaValue->value());
 
-  ui->tabWidget->setCurrentIndex(1);
+  _clearStepMode();
 
+  // Disabling/enabling buttons
   ui->runStepButton->setDisabled(true);
   ui->runAutoButton->setDisabled(true);
   ui->stopButton->setDisabled(false);
 
   ui->oneStepButton->setDisabled(false);
-  _clearStepMode();
+
+  // Set up tables
+  auto bufferTableHeaders = QStringList() << "id"
+                                          << "State";
+  ui->bufferTable->setColumnCount(2);
+  ui->bufferTable->setRowCount(bufferSize);
+  for (int i = 0; i < bufferSize; ++i)
+  {
+    ui->bufferTable->setItem(i, 0, new QTableWidgetItem(std::to_string(i).c_str()));
+  }
+  ui->bufferTable->setHorizontalHeaderLabels(bufferTableHeaders);
+  // ui->bufferTable->hideColumn(0);
+
+  ui->devicesTable->clear();
+
+  ui->tabWidget->setCurrentIndex(1);
 }
 
 void MainWindow::stepMode_stepButton()
 {
   _engine_ptr->step();
+  // _engine_ptr->
   ui->createdValueLabel->setText(std::to_string(_engine_ptr->getCreated()).c_str());
   ui->processedValueLabel->setText(std::to_string(_engine_ptr->getProcessed()).c_str());
   ui->rejectedValueLabel->setText(std::to_string(_engine_ptr->getRejected()).c_str());
@@ -89,6 +110,8 @@ void MainWindow::_clearStepMode()
   ui->createdValueLabel->setText("0");
   ui->processedValueLabel->setText("0");
   ui->rejectedValueLabel->setText("0");
+  ui->bufferTable->clear();
+  ui->devicesTable->clear();
 }
 
 bool MainWindow::_checkValues()
