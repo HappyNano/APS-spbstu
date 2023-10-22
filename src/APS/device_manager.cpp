@@ -13,12 +13,17 @@ APS::DeviceManager::DeviceManager(size_t size,
   for (size_t i = 0; i < size; ++i)
   {
     _devices.emplace_back(i, time_manager_ptr, processed_counter);
-    _devices.back().subscribe(
+    _devices.back().subscribeRelease(
      [this](const Request &)
      {
        this->check();
      });
   }
+  _buffer_ptr->subscribeRegistered(
+   [this](const Request &)
+   {
+     this->check();
+   });
 }
 
 bool APS::DeviceManager::isAvaible() const

@@ -6,15 +6,29 @@
 #include "APS/request_manager.hpp"
 #include "APS/buffer.hpp"
 #include "APS/device_manager.hpp"
+#include "APS/utility/event_subscribers.hpp"
 
 namespace APS
 {
+  enum EngineEvent
+  {
+    // Source
+    SourceGenerated,
+    // Buffer
+    BufferRegistered,
+    BufferReleased,
+    // Device
+    DeviceRegistered,
+    DeviceReleased,
+
+    RequestRejected
+  };
+
   class Engine
   {
    public:
     Engine(size_t sources_count, size_t buffer_size, size_t devices_count, double alpha, double beta, double lambda);
 
-    void printState(int from_source = -1);
     void run();
     void step();
 
@@ -35,9 +49,11 @@ namespace APS
     APS::RequestManager _req_manager;
     APS::DeviceManager _device_manager;
 
+    void _printState(EngineEvent, const Request &);
+
    public:
     //
-    APS::Subscribers< const APS::Request & > _update_subs;
+    APS::EventSubscribers< APS::EngineEvent, const APS::Request & > _update_subs;
   };
 }
 

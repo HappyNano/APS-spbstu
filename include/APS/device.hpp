@@ -51,13 +51,20 @@ namespace APS
      * \note Connect here "check" method of APS::DeviceManager
      * \param function function
      */
-    void subscribe(const subs_func_t & function);
+    void subscribeRelease(const subs_func_t & function);
+
+    /**
+     * \brief Function to subsribe for device register request
+     * \param function function
+     */
+    void subscribeRegistered(const subs_func_t & function);
 
    private:
     std::optional< Request > _request_opt;
     APS::SharedCounter _processed_counter;
     APS::TimeManager::shared _time_manager_ptr;
-    APS::Subscribers< Request > _subs;
+    APS::Subscribers< Request > _subs_registered;
+    APS::Subscribers< Request > _subs_release;
     APS::ExponentialRandom _erand;
     int _id;
 

@@ -58,6 +58,9 @@ namespace APS
 
     void subscribe(const function_t &);
 
+    template < typename Class, typename Func >
+    void subscribe(Class *, Func);
+
     void invoke(Args... args);
 
    private:
@@ -91,6 +94,17 @@ template < typename... Args >
 void APS::Subscribers< Args... >::subscribe(const function_t & function)
 {
   _subscribers.push_back(function);
+}
+
+template < typename... Args >
+template < typename Class, typename Func >
+void APS::Subscribers< Args... >::subscribe(Class * cls, Func function)
+{
+  this->subscribe(
+   [cls, function](Args... args)
+   {
+     (cls->*function)(args...);
+   });
 }
 
 template < typename... Args >

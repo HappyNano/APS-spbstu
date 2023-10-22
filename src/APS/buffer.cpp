@@ -6,7 +6,8 @@
 APS::Buffer::Buffer(size_t size, const time_manager_ptr_t & time_manager_ptr):
   _time_manager_ptr{ time_manager_ptr },
   _req_memory{},
-  _subs{}
+  _subs_registered{},
+  _subs_release{}
 {
   _req_memory.resize(size);
 }
@@ -83,6 +84,8 @@ std::optional< APS::Request > APS::Buffer::getRequestByPriority() noexcept(true)
    });
   _req_memory_iter_toErase->reset();
 
+  _subs_release.invoke(highest_priority_request);
+
   return highest_priority_request;
 }
 
@@ -101,12 +104,17 @@ void APS::Buffer::registerRequest(const Request & req)
    });
 
   _req_memory_iter_toInsert->emplace(_time_manager_ptr->timeNow(), req);
-  _subs.invoke();
+  _subs_registered.invoke(req);
 }
 
-void APS::Buffer::subscribe(const APS::Subscribers<>::function_t & function)
+void APS::Buffer::subscribeRegistered(const APS::Subscribers< Request >::function_t & function)
 {
-  _subs.subscribe(function);
+  _subs_registered.subscribe(function);
+}
+
+void APS::Buffer::subscribeRelease(const APS::Subscribers< Request >::function_t & function)
+{
+  _subs_release.subscribe(function);
 }
 
 const typename APS::Buffer::vec_type & APS::Buffer::getBuffer() const

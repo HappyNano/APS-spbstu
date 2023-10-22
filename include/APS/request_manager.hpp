@@ -27,9 +27,16 @@ namespace APS
      */
     void registerRequest(const Request & req);
 
+    /**
+     * \brief Function to subsribe for when request rejected
+     * \param function function
+     */
+    void subscribeReject(const APS::Subscribers< Request >::function_t & function);
+
    private:
     APS::Buffer::shared _buffer_ptr;
     counter_t _reject_counter;
+    APS::Subscribers< Request > _subs_reject;
   };
 }
 

@@ -14,6 +14,7 @@ namespace APS
     APS::TimeManager::time_unit_t create_time;
     APS::TimeManager::time_unit_t registered_time;
     APS::TimeManager::time_unit_t processed_time;
+    bool rejected;
   };
 
   bool operator==(const Request &, const Request &);

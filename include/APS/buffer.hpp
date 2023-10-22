@@ -62,7 +62,13 @@ namespace APS
      * \brief Function to subsribe for buffer getting request
      * \param function function
      */
-    void subscribe(const APS::Subscribers<>::function_t & function);
+    void subscribeRegistered(const APS::Subscribers< Request >::function_t & function);
+
+    /**
+     * \brief Function to subsribe for when buffer releases request
+     * \param function function
+     */
+    void subscribeRelease(const APS::Subscribers< Request >::function_t & function);
 
     const vec_type & getBuffer() const;
 
@@ -73,7 +79,8 @@ namespace APS
 
     time_manager_ptr_t _time_manager_ptr;
     std::vector< std::optional< vec_elem_t > > _req_memory;
-    APS::Subscribers<> _subs;
+    APS::Subscribers< Request > _subs_registered;
+    APS::Subscribers< Request > _subs_release;
   };
 }
 

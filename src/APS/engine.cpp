@@ -1,6 +1,11 @@
 #include "APS/engine.hpp"
 #include <iostream>
 
+#define RED "\033[91m"
+#define GREEN "\033[92m"
+#define BLUE "\033[94m"
+#define DEFAULT "\033[0m"
+
 APS::Engine::Engine(size_t sources_count, size_t buffer_size, size_t devices_count, double alpha, double beta, double lambda):
   _rejectReq_counter{ 0 },
   _createdReq_counter{ 0 },
@@ -15,44 +20,64 @@ APS::Engine::Engine(size_t sources_count, size_t buffer_size, size_t devices_cou
   for (int i = 0; i < sources_count; ++i)
   {
     _sources.emplace_back(Source::makeShared(alpha, beta, i, _createdReq_counter, _time_manager_ptr));
+    // Link functions when source generates request
     _sources.back()->subscribe(
      [this, i](const Request & req)
      {
-       _update_subs.invoke(req);
+       _update_subs.invoke(EngineEvent::SourceGenerated, req);
        this->_req_manager.registerRequest(req);
      });
   }
 
   // Linking
-  _buffer_ptr->subscribe(
-   [this]()
+  _req_manager.subscribeReject(
+   [this](const Request & req)
    {
-     this->_update_subs.invoke(Request{});
-     this->_device_manager.check();
+     this->_update_subs.invoke(EngineEvent::RequestRejected, req);
+   });
+
+  _buffer_ptr->subscribeRelease(
+   [this](const Request & req)
+   {
+     this->_update_subs.invoke(EngineEvent::BufferReleased, req);
+   });
+  _buffer_ptr->subscribeRegistered(
+   [this](const Request & req)
+   {
+     this->_update_subs.invoke(EngineEvent::BufferRegistered, req);
    });
 
   for (auto && device: _device_manager.getDevices())
   {
-    device.subscribe(
-     [this, &device](const Request & req)
+    device.subscribeRelease(
+     [this](const Request & req)
      {
-       _update_subs.invoke(req);
+       _update_subs.invoke(EngineEvent::DeviceReleased, req);
+     });
+    device.subscribeRegistered(
+     [this](const Request & req)
+     {
+       _update_subs.invoke(EngineEvent::DeviceRegistered, req);
+     });
+  }
+
+  // Linking states
+  for (int eventInt = EngineEvent::SourceGenerated; eventInt <= EngineEvent::RequestRejected; ++eventInt)
+  {
+    EngineEvent event = static_cast< EngineEvent >(eventInt);
+    _update_subs.subscribe(event,
+     [this, event](const Request & req)
+     {
+       this->_printState(event, req);
      });
   }
 }
 
-void APS::Engine::printState(int from_source)
+void APS::Engine::_printState(EngineEvent event, const Request & req)
 {
   static TimeManager::time_unit_t last_time = 0;
   std::string res;
-  // if (from_source != -1)
-  // {
-  //   res += "\033[92mNew request from source ";
-  //   res += std::to_string(from_source);
-  //   res += "\033[0m ";
-  //   std::cout << res << std::endl;
-  //   return;
-  // }
+
   res += "Time ";
   res += std::to_string(_time_manager_ptr->timeNow());
   res += " (ms) \t";
@@ -61,17 +86,18 @@ void APS::Engine::printState(int from_source)
   int i = 0;
   for (auto && source: _sources)
   {
-    if (i == from_source)
+    if (event == EngineEvent::SourceGenerated && i == req.source_id)
     {
-      res += "\033[92m";
-      res += "[" + std::to_string(i) + "]";
+      res += GREEN;
+      res += "[" + std::to_string(req.source_id) + "]";
     }
     else
     {
-      res += "\033[94m";
+      res += BLUE;
       res += "[-]";
     }
-    res += "\033[0m ";
+    res += DEFAULT;
+    res += " ";
     ++i;
   }
 
@@ -80,15 +106,16 @@ void APS::Engine::printState(int from_source)
   {
     if (buf_item.has_value())
     {
-      res += "\033[91m";
+      res += RED;
       res += "[" + std::to_string(buf_item->second.source_id) + "]";
     }
     else
     {
-      res += "\033[92m";
+      res += GREEN;
       res += "[-]";
     }
-    res += "\033[0m ";
+    res += DEFAULT;
+    res += " ";
   }
 
   res += "Devices: ";
@@ -96,17 +123,51 @@ void APS::Engine::printState(int from_source)
   {
     if (device.isAvaible())
     {
-      res += "\033[94m";
+      res += BLUE;
       res += "[-]";
     }
     else
     {
-      res += "\033[91m";
+      res += RED;
       res += "[" + std::to_string(device.getRequest().value().source_id) + "]";
     }
-    res += "\033[0m ";
+    res += DEFAULT;
+    res += " ";
   }
   res += "  " + std::to_string(_time_manager_ptr->timeNow() - last_time) + " (ms) ";
+  switch (event)
+  {
+  case EngineEvent::SourceGenerated:
+    res += GREEN;
+    res += "Request " + std::to_string(req.source_id) + "." + std::to_string(req.source_req_number) + " generated";
+    res += DEFAULT;
+    break;
+  case EngineEvent::BufferRegistered:
+    res += BLUE;
+    res += "Buffer registered " + std::to_string(req.source_id) + "." + std::to_string(req.source_req_number) + " request";
+    res += DEFAULT;
+    break;
+  case EngineEvent::BufferReleased:
+    res += BLUE;
+    res += "Buffer released " + std::to_string(req.source_id) + "." + std::to_string(req.source_req_number) + " request";
+    res += DEFAULT;
+    break;
+  case EngineEvent::DeviceRegistered:
+    res += BLUE;
+    res += "Device registered " + std::to_string(req.source_id) + "." + std::to_string(req.source_req_number) + " request";
+    res += DEFAULT;
+    break;
+  case EngineEvent::DeviceReleased:
+    res += BLUE;
+    res += "Device released " + std::to_string(req.source_id) + "." + std::to_string(req.source_req_number) + " request";
+    res += DEFAULT;
+    break;
+  case EngineEvent::RequestRejected:
+    res += RED;
+    res += "Request " + std::to_string(req.source_id) + "." + std::to_string(req.source_req_number) + " rejected";
+    res += DEFAULT;
+    break;
+  }
   last_time = _time_manager_ptr->timeNow();
   std::cout << res << std::endl;
 }
@@ -116,7 +177,6 @@ void APS::Engine::run()
   while (_createdReq_counter.value() < 100)
   {
     step();
-    // std::cin.get();
   }
 
   std::cout << '\n';
