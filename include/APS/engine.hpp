@@ -32,6 +32,10 @@ namespace APS
     void run();
     void step();
 
+    APS::TimeManager::shared timeManager();
+    APS::Buffer::shared buffer();
+    APS::DeviceManager & deviceManager();
+
     SharedCounter::ctype_t getCreated() const;
     SharedCounter::ctype_t getRejected() const;
     SharedCounter::ctype_t getProcessed() const;

@@ -25,9 +25,6 @@ class MainWindow: public QMainWindow
   void stopMode();
   void stepMode_stepButton();
 
- public slots:
-  void sclickedSlot();
-
  private:
   Ui::MainWindow * ui;
   QStandardItemModel * model;
@@ -37,6 +34,14 @@ class MainWindow: public QMainWindow
   void _setDefaultValues();
   void _clearStepMode();
   bool _checkValues();
+
+  // StepMode functions
+  void _stepMode_ChangeEvent(APS::EngineEvent event, const APS::Request & req);
+  void _stepMode_init_bufferTable();
+  void _stepMode_init_devicesTable();
+  void _stepMode_init_calendarTable();
+  void _stepMode_init();
+  void _stepMode_clear();
 };
 
 #endif

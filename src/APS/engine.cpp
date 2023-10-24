@@ -177,6 +177,7 @@ void APS::Engine::run()
   while (_createdReq_counter.value() < 100)
   {
     step();
+    std::cin.get();
   }
 
   std::cout << '\n';
@@ -188,6 +189,21 @@ void APS::Engine::run()
 void APS::Engine::step()
 {
   _time_manager_ptr->stepToEvent();
+}
+
+APS::TimeManager::shared APS::Engine::timeManager()
+{
+  return _time_manager_ptr;
+}
+
+APS::Buffer::shared APS::Engine::buffer()
+{
+  return _buffer_ptr;
+}
+
+APS::DeviceManager & APS::Engine::deviceManager()
+{
+  return _device_manager;
 }
 
 APS::SharedCounter::ctype_t APS::Engine::getCreated() const
