@@ -22,6 +22,7 @@ class MainWindow: public QMainWindow
   ~MainWindow();
 
   void showStepModeTab();
+  void showAutoModeTab();
   void stopMode();
   void stepMode_stepButton();
 
@@ -42,6 +43,13 @@ class MainWindow: public QMainWindow
   void _stepMode_init_calendarTable();
   void _stepMode_init();
   void _stepMode_clear();
+
+  // AutoMode functions
+  void _autoMode_showStatistic();
+  void _autoMode_init_sourcesTable();
+  void _autoMode_init_devicesTable();
+  void _autoMode_init();
+  void _autoMode_clear();
 };
 
 #endif

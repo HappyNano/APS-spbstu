@@ -6,7 +6,13 @@
 #define BLUE "\033[94m"
 #define DEFAULT "\033[0m"
 
-APS::Engine::Engine(size_t sources_count, size_t buffer_size, size_t devices_count, double alpha, double beta, double lambda):
+APS::Engine::Engine(size_t sources_count,
+ size_t buffer_size,
+ size_t devices_count,
+ double alpha,
+ double beta,
+ double lambda,
+ std::optional< size_t > req_count):
   _rejectReq_counter{ 0 },
   _createdReq_counter{ 0 },
   _processedReq_counter{ 0 },
@@ -14,18 +20,24 @@ APS::Engine::Engine(size_t sources_count, size_t buffer_size, size_t devices_cou
   _sources{},
   _buffer_ptr{ Buffer::makeShared(buffer_size, _time_manager_ptr) },
   _req_manager{ _buffer_ptr, _rejectReq_counter },
-  _device_manager{ devices_count, _time_manager_ptr, _processedReq_counter, _buffer_ptr },
-  _update_subs{}
+  _device_manager{ devices_count, _time_manager_ptr, _processedReq_counter, _buffer_ptr, lambda },
+  _update_subs{},
+  _outModel_requests{ std::make_shared< std::vector< Request > >() }
 {
+  APS::Source::stop = false;
   for (int i = 0; i < sources_count; ++i)
   {
     _sources.emplace_back(Source::makeShared(alpha, beta, i, _createdReq_counter, _time_manager_ptr));
     // Link functions when source generates request
     _sources.back()->subscribe(
-     [this, i](const Request & req)
+     [this, i, req_count](const Request & req)
      {
        _update_subs.invoke(EngineEvent::SourceGenerated, req);
        this->_req_manager.registerRequest(req);
+       if (req_count.has_value() && this->_createdReq_counter.value() >= req_count.value())
+       {
+         APS::Source::stop = true;
+       }
      });
   }
 
@@ -71,6 +83,17 @@ APS::Engine::Engine(size_t sources_count, size_t buffer_size, size_t devices_cou
        this->_printState(event, req);
      });
   }
+  _update_subs.subscribe(EngineEvent::DeviceReleased,
+   [this](const Request & req)
+   {
+     this->_outModel_requests->push_back(req);
+   });
+  _update_subs.subscribe(EngineEvent::RequestRejected,
+   [this](Request req)
+   {
+     req.processed_time = this->_time_manager_ptr->timeNow();
+     this->_outModel_requests->push_back(req);
+   });
 }
 
 void APS::Engine::_printState(EngineEvent event, const Request & req)
@@ -219,4 +242,14 @@ APS::SharedCounter::ctype_t APS::Engine::getRejected() const
 APS::SharedCounter::ctype_t APS::Engine::getProcessed() const
 {
   return _processedReq_counter.value();
+}
+
+APS::Statistic APS::Engine::collectStat() const
+{
+  return APS::Statistic(*_outModel_requests);
+}
+
+bool APS::Engine::stoped() const
+{
+  return APS::Source::stop;
 }

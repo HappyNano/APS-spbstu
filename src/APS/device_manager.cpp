@@ -6,13 +6,14 @@
 APS::DeviceManager::DeviceManager(size_t size,
  timeManager_ptr_t time_manager_ptr,
  const counter_t & processed_counter,
- buffer_ptr_t buffer_ptr):
+ buffer_ptr_t buffer_ptr,
+ double lambda):
   _devices{},
   _buffer_ptr{ buffer_ptr }
 {
-  for (size_t i = 0; i < size; ++i)
+  for (int i = 0; i < size; ++i)
   {
-    _devices.emplace_back(i, time_manager_ptr, processed_counter);
+    _devices.emplace_back(i, time_manager_ptr, processed_counter, lambda);
     _devices.back().subscribeRelease(
      [this](const Request &)
      {

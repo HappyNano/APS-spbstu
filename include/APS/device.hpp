@@ -18,7 +18,7 @@ namespace APS
     using req_opt_t = std::optional< Request >;
     using subs_func_t = APS::Subscribers< Request >::function_t;
 
-    Device(int id, APS::TimeManager::shared time_manager_ptr, const counter_t & processed_counter);
+    Device(int id, APS::TimeManager::shared time_manager_ptr, const counter_t & processed_counter, double lambda);
     Device(const this_t &) = default;
     Device(this_t &&) noexcept;
     ~Device() = default;

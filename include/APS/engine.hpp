@@ -7,6 +7,7 @@
 #include "APS/buffer.hpp"
 #include "APS/device_manager.hpp"
 #include "APS/utility/event_subscribers.hpp"
+#include "APS/statistic.hpp"
 
 namespace APS
 {
@@ -27,7 +28,13 @@ namespace APS
   class Engine
   {
    public:
-    Engine(size_t sources_count, size_t buffer_size, size_t devices_count, double alpha, double beta, double lambda);
+    Engine(size_t sources_count,
+     size_t buffer_size,
+     size_t devices_count,
+     double alpha,
+     double beta,
+     double lambda,
+     std::optional< size_t > req_count = {});
 
     void run();
     void step();
@@ -39,6 +46,9 @@ namespace APS
     SharedCounter::ctype_t getCreated() const;
     SharedCounter::ctype_t getRejected() const;
     SharedCounter::ctype_t getProcessed() const;
+
+    APS::Statistic collectStat() const;
+    bool stoped() const;
 
    private:
     // Counters
@@ -52,6 +62,9 @@ namespace APS
     APS::Buffer::shared _buffer_ptr;
     APS::RequestManager _req_manager;
     APS::DeviceManager _device_manager;
+
+    // Statistic's vector
+    std::shared_ptr< std::vector< Request > > _outModel_requests;
 
     void _printState(EngineEvent, const Request &);
 

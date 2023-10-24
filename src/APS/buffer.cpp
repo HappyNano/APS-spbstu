@@ -103,8 +103,11 @@ void APS::Buffer::registerRequest(const Request & req)
      return !el.has_value();
    });
 
-  _req_memory_iter_toInsert->emplace(_time_manager_ptr->timeNow(), req);
-  _subs_registered.invoke(req);
+  auto req_tmp = req;
+  req_tmp.buffered_time = _time_manager_ptr->timeNow();
+
+  _req_memory_iter_toInsert->emplace(_time_manager_ptr->timeNow(), req_tmp);
+  _subs_registered.invoke(req_tmp);
 }
 
 void APS::Buffer::subscribeRegistered(const APS::Subscribers< Request >::function_t & function)

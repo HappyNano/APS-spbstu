@@ -13,8 +13,9 @@ MainWindow::MainWindow(QWidget * parent):
 
   _setDefaultValues();
 
-  connect(ui->runStepButton, &QPushButton::clicked, this, &MainWindow::showStepModeTab);
   connect(ui->stopButton, &QPushButton::clicked, this, &MainWindow::stopMode);
+  connect(ui->runStepButton, &QPushButton::clicked, this, &MainWindow::showStepModeTab);
+  connect(ui->runAutoButton, &QPushButton::clicked, this, &MainWindow::showAutoModeTab);
   connect(ui->oneStepButton, &QPushButton::clicked, this, &MainWindow::stepMode_stepButton);
   connect(ui->setDefaultButton, &QPushButton::clicked, this, &MainWindow::_setDefaultValues);
 }
@@ -28,13 +29,31 @@ void MainWindow::showStepModeTab()
 {
   if (!_checkValues())
   {
-    std::cerr << "errorStepMode";
+    std::cerr << "errorStepMode\n";
     return;
   }
   _stepMode_init();
 
   // Show step mode
   ui->tabWidget->setCurrentIndex(1);
+}
+
+void MainWindow::showAutoModeTab()
+{
+  if (!_checkValues())
+  {
+    std::cerr << "errorAutoMode\n";
+    return;
+  }
+  _autoMode_init();
+
+  // Show auto mode
+  ui->tabWidget->setCurrentIndex(2);
+  while (_engine_ptr->getProcessed() + _engine_ptr->getRejected() < ui->countRequestsValue->value())
+  {
+    _engine_ptr->step();
+  }
+  _autoMode_showStatistic();
 }
 
 void MainWindow::stepMode_stepButton()
@@ -73,7 +92,7 @@ void MainWindow::_setDefaultValues()
 
 bool MainWindow::_checkValues()
 {
-  return ui->alphaValue->value() < ui->betaValue->value();
+  return ui->alphaValue->value() < ui->betaValue->value() && ui->countRequestsValue->value() >= 1;
 }
 
 void MainWindow::_stepMode_ChangeEvent(APS::EngineEvent event, const APS::Request & req)
@@ -140,11 +159,13 @@ void MainWindow::_stepMode_ChangeEvent(APS::EngineEvent event, const APS::Reques
     break;
   case APS::EngineEvent::DeviceRegistered:
     updateDeviceTable_func();
-    newState_str += "Device registered " + QString::number(req.source_id) + "." + QString::number(req.source_req_number) + " request";
+    newState_str += "Device[" + QString::number(req.device_id) + "] registered " + QString::number(req.source_id) + "." +
+                    QString::number(req.source_req_number) + " request";
     break;
   case APS::EngineEvent::DeviceReleased:
     updateDeviceTable_func();
-    newState_str += "Device released " + QString::number(req.source_id) + "." + QString::number(req.source_req_number) + " request";
+    newState_str += "Device[" + QString::number(req.device_id) + "] released " + QString::number(req.source_id) + "." +
+                    QString::number(req.source_req_number) + " request";
     break;
   case APS::EngineEvent::RequestRejected:
     newState_str += "Request " + QString::number(req.source_id) + "." + QString::number(req.source_req_number) + " rejected";
@@ -192,6 +213,8 @@ void MainWindow::_stepMode_init_calendarTable()
   ui->calendarTable->setColumnCount(2);
   ui->calendarTable->setHorizontalHeaderLabels(QStringList() << "time"
                                                              << "Event");
+  ui->calendarTable->setColumnWidth(0, 61);
+  ui->calendarTable->setColumnWidth(1, 232);
 }
 
 void MainWindow::_stepMode_init()
@@ -247,4 +270,106 @@ void MainWindow::_stepMode_clear()
   ui->devicesTable->setRowCount(0);
   ui->calendarTable->clear();
   ui->calendarTable->setRowCount(0);
+}
+
+void MainWindow::_autoMode_showStatistic()
+{
+  ui->createdValueLabel_AutoMode->setText(QString::number(_engine_ptr->getCreated()));
+  ui->processedValueLabel_AutoMode->setText(QString::number(_engine_ptr->getProcessed()));
+  ui->rejectedValueLabel_AutoMode->setText(QString::number(_engine_ptr->getRejected()));
+
+  auto stat = _engine_ptr->collectStat();
+  for (auto && source: stat.sources())
+  {
+    ui->autoMode_sourcesTable->insertRow(ui->autoMode_sourcesTable->rowCount());
+    ui->autoMode_sourcesTable->setItem(ui->autoMode_sourcesTable->rowCount() - 1,
+     0,
+     new QTableWidgetItem(QString("И") + QString::number(source.first)));
+    ui->autoMode_sourcesTable->setItem(ui->autoMode_sourcesTable->rowCount() - 1,
+     1,
+     new QTableWidgetItem(QString::number(source.second.countCreated())));
+    ui->autoMode_sourcesTable->setItem(ui->autoMode_sourcesTable->rowCount() - 1,
+     2,
+     new QTableWidgetItem(QString::number(source.second.p_rejected())));
+    ui->autoMode_sourcesTable->setItem(ui->autoMode_sourcesTable->rowCount() - 1,
+     3,
+     new QTableWidgetItem(QString::number(source.second.average_TimeIn())));
+    ui->autoMode_sourcesTable->setItem(ui->autoMode_sourcesTable->rowCount() - 1,
+     4,
+     new QTableWidgetItem(QString::number(source.second.average_TimeBuffered())));
+    ui->autoMode_sourcesTable->setItem(ui->autoMode_sourcesTable->rowCount() - 1,
+     5,
+     new QTableWidgetItem(QString::number(source.second.average_TimeService())));
+    ui->autoMode_sourcesTable->setItem(ui->autoMode_sourcesTable->rowCount() - 1, 6, new QTableWidgetItem(""));
+    ui->autoMode_sourcesTable->setItem(ui->autoMode_sourcesTable->rowCount() - 1, 7, new QTableWidgetItem(""));
+  }
+
+  for (auto && device: stat.devices())
+  {
+    ui->autoMode_devicesTable->insertRow(ui->autoMode_devicesTable->rowCount());
+    ui->autoMode_devicesTable->setItem(ui->autoMode_devicesTable->rowCount() - 1,
+     0,
+     new QTableWidgetItem(QString("П") + QString::number(device.first)));
+    ui->autoMode_devicesTable->setItem(ui->autoMode_devicesTable->rowCount() - 1,
+     1,
+     new QTableWidgetItem(QString::number(device.second.usingCoef())));
+  }
+}
+
+void MainWindow::_autoMode_init_sourcesTable()
+{
+  ui->autoMode_sourcesTable->setColumnCount(8);
+  ui->autoMode_sourcesTable->setHorizontalHeaderLabels(
+   QStringList() << "source_id"
+                 << "Request count"
+                 << "P reject"
+                 << "T in"
+                 << "T buffered"
+                 << "T service"
+                 << "D buffered"
+                 << "D service");
+}
+
+void MainWindow::_autoMode_init_devicesTable()
+{
+  ui->autoMode_devicesTable->setColumnCount(2);
+  ui->autoMode_devicesTable->setHorizontalHeaderLabels(QStringList() << "device id"
+                                                                     << "using coef");
+}
+
+void MainWindow::_autoMode_init()
+{
+  // Creating engine ptr
+  const auto sourcesSize = ui->sourcesValue->value();
+  const auto bufferSize = ui->bufferSizeValue->value();
+  const auto devicesSize = ui->devicesValue->value();
+
+  _engine_ptr = std::make_unique< APS::Engine >(sourcesSize,
+   bufferSize,
+   devicesSize,
+   ui->alphaValue->value(),
+   ui->betaValue->value(),
+   ui->lambdaValue->value(),
+   ui->countRequestsValue->value());
+
+  _autoMode_clear();
+
+  // Disabling/enabling buttons
+  ui->runStepButton->setDisabled(true);
+  ui->runAutoButton->setDisabled(true);
+  ui->stopButton->setDisabled(false);
+
+  _autoMode_init_sourcesTable();
+  _autoMode_init_devicesTable();
+}
+
+void MainWindow::_autoMode_clear()
+{
+  ui->createdValueLabel_AutoMode->setText("0");
+  ui->processedValueLabel_AutoMode->setText("0");
+  ui->rejectedValueLabel_AutoMode->setText("0");
+  ui->autoMode_devicesTable->clear();
+  ui->autoMode_devicesTable->setRowCount(0);
+  ui->autoMode_sourcesTable->clear();
+  ui->autoMode_sourcesTable->setRowCount(0);
 }

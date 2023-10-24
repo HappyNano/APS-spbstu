@@ -15,7 +15,11 @@ namespace APS
     using buffer_ptr_t = APS::Buffer::shared;
     using devices_t = std::vector< APS::Device >;
 
-    DeviceManager(size_t size, timeManager_ptr_t time_manager_ptr, const counter_t & processed_counter, buffer_ptr_t buffer_ptr);
+    DeviceManager(size_t size,
+     timeManager_ptr_t time_manager_ptr,
+     const counter_t & processed_counter,
+     buffer_ptr_t buffer_ptr,
+     double lambda);
     ~DeviceManager() = default;
 
     /**

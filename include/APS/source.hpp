@@ -40,6 +40,8 @@ namespace APS
      counter_t req_counter,
      const TimeManager::shared & time_manager_ptr);
 
+    inline static bool stop = false;
+
    private:
     TimeManager::shared _time_manager_ptr;
 

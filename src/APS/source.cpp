@@ -20,7 +20,12 @@ void APS::Source::subscribe(APS::Subscribers< Request >::function_t function)
 
 void APS::Source::createRequest()
 {
-  Request req{ _requests_counter++, _id, _requests_count++, _time_manager_ptr->timeNow(), 0, 0, false };
+  if (Source::stop)
+  {
+    return;
+  }
+
+  Request req{ _requests_counter++, _id, _requests_count++, _time_manager_ptr->timeNow(), 0, 0, 0, false, -1 };
   ++_requests_count;
 
   _subscribeForTimeManager();
