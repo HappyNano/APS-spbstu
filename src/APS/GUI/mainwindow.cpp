@@ -2,6 +2,7 @@
 #include "./ui_mainwindow.h"
 #include <iostream>
 #include <string>
+#include <cmath>
 
 // #define button
 
@@ -47,11 +48,55 @@ void MainWindow::showAutoModeTab()
   }
   _autoMode_init();
 
+  const auto sourcesSize = ui->sourcesValue->value();
+  const auto bufferSize = ui->bufferSizeValue->value();
+  const auto devicesSize = ui->devicesValue->value();
+
+  static auto engine_func = [&](const int N) -> double
+  {
+    // Creating engine ptr
+    _engine_ptr = std::make_unique< APS::Engine >(sourcesSize,
+     bufferSize,
+     devicesSize,
+     ui->alphaValue->value(),
+     ui->betaValue->value(),
+     ui->lambdaValue->value(),
+     N);
+    while (_engine_ptr->getProcessed() + _engine_ptr->getRejected() < N)
+    {
+      _engine_ptr->step();
+    }
+    return 1.f * _engine_ptr->getRejected() / _engine_ptr->getCreated();
+  };
+
   // Show auto mode
   ui->tabWidget->setCurrentIndex(2);
-  while (_engine_ptr->getProcessed() + _engine_ptr->getRejected() < ui->countRequestsValue->value())
+  if (ui->isCalculateN->checkState() == Qt::CheckState::Checked)
   {
-    _engine_ptr->step();
+    const double t_a = 1.643;
+    const double a = 0.9;
+    const double delta = 0.1;
+
+    int N_0 = ui->countRequestsValue_N->value();
+    double p_0 = engine_func(N_0);
+    double N_1 = std::ceil((t_a * t_a * (1 - p_0)) / (p_0 * delta * delta));
+    double p_1 = 0;
+    while (true)
+    {
+      _engine_ptr.reset();
+      p_1 = engine_func(N_1);
+      if (std::abs(p_0 - p_1) < 0.1)
+      {
+        break;
+      }
+      p_0 = p_1;
+      N_1 = std::ceil((t_a * t_a * (1 - p_0)) / (p_0 * delta * delta));
+    }
+    std::cout << "p = " << p_1 << " N = " << N_1 << '\n';
+  }
+  else
+  {
+    engine_func(ui->countRequestsValue->value());
   }
   _autoMode_showStatistic();
 }
@@ -344,19 +389,6 @@ void MainWindow::_autoMode_init_devicesTable()
 
 void MainWindow::_autoMode_init()
 {
-  // Creating engine ptr
-  const auto sourcesSize = ui->sourcesValue->value();
-  const auto bufferSize = ui->bufferSizeValue->value();
-  const auto devicesSize = ui->devicesValue->value();
-
-  _engine_ptr = std::make_unique< APS::Engine >(sourcesSize,
-   bufferSize,
-   devicesSize,
-   ui->alphaValue->value(),
-   ui->betaValue->value(),
-   ui->lambdaValue->value(),
-   ui->countRequestsValue->value());
-
   _autoMode_clear();
 
   // Disabling/enabling buttons

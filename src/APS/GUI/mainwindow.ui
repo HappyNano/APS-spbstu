@@ -546,10 +546,73 @@
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_17">
              <property name="rightMargin">
-              <number>578</number>
+              <number>0</number>
              </property>
              <item>
-              <widget class="QLabel" name="countReqsLabel">
+              <layout class="QHBoxLayout" name="horizontalLayout_8">
+               <item>
+                <widget class="QLabel" name="countReqsLabel">
+                 <property name="font">
+                  <font>
+                   <pointsize>12</pointsize>
+                  </font>
+                 </property>
+                 <property name="cursor">
+                  <cursorShape>ArrowCursor</cursorShape>
+                 </property>
+                 <property name="layoutDirection">
+                  <enum>Qt::LeftToRight</enum>
+                 </property>
+                 <property name="text">
+                  <string>Count reqs</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QSpinBox" name="countRequestsValue">
+                 <property name="font">
+                  <font>
+                   <pointsize>12</pointsize>
+                  </font>
+                 </property>
+                 <property name="minimum">
+                  <number>1</number>
+                 </property>
+                 <property name="maximum">
+                  <number>1000</number>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_2">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Fixed</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>235</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_9">
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QLabel" name="countReqsLabel_N">
                <property name="font">
                 <font>
                  <pointsize>12</pointsize>
@@ -562,7 +625,7 @@
                 <enum>Qt::LeftToRight</enum>
                </property>
                <property name="text">
-                <string>Count reqs</string>
+                <string>Start N_0</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignCenter</set>
@@ -570,7 +633,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QSpinBox" name="countRequestsValue">
+              <widget class="QSpinBox" name="countRequestsValue_N">
                <property name="font">
                 <font>
                  <pointsize>12</pointsize>
@@ -581,6 +644,44 @@
                </property>
                <property name="maximum">
                 <number>1000</number>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_5">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeType">
+                <enum>QSizePolicy::Fixed</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>9</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="isCalculateN">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="checked">
+                <bool>false</bool>
+               </property>
+               <property name="autoRepeat">
+                <bool>false</bool>
+               </property>
+               <property name="autoExclusive">
+                <bool>false</bool>
                </property>
               </widget>
              </item>
