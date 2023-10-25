@@ -17,6 +17,8 @@ namespace APS
     double average_TimeIn() const;
     double average_TimeBuffered() const;
     double average_TimeService() const;
+    double dispersion_TimeBuffered() const;
+    double dispersion_TimeService() const;
 
    private:
     int _source_id;           // ID источника
@@ -28,6 +30,8 @@ namespace APS
     // if (!rejected) registered_time - buffered_time
     double _average_T_service; // Среднее время обслуживания
     // if (!rejected) processed_time - registered_time
+    double _dispersion_T_buffered;
+    double _dispersion_T_service;
   };
 
   class DeviceStatistic

@@ -62,7 +62,9 @@ APS::SourceStatistic::SourceStatistic(int source_id, const std::vector< Request 
   _p_rejected{ 0 },
   _average_T_in{ 0 },
   _average_T_buffered{ 0 },
-  _average_T_service{ 0 }
+  _average_T_service{ 0 },
+  _dispersion_T_buffered{ 0 },
+  _dispersion_T_service{ 0 }
 {
   size_t count_processed = 0;
   size_t count_rejected = 0;
@@ -91,6 +93,20 @@ APS::SourceStatistic::SourceStatistic(int source_id, const std::vector< Request 
   _average_T_in /= count_processed;
   _average_T_buffered /= count_processed;
   _average_T_service /= count_processed;
+
+  for (auto && req: requests)
+  {
+    if (req.source_id != _source_id || req.rejected)
+    {
+      continue;
+    }
+    double buffered_time = req.registered_time - req.buffered_time;
+    double service_time = req.processed_time - req.registered_time;
+    _dispersion_T_buffered += (buffered_time - _average_T_buffered) * (buffered_time - _average_T_buffered);
+    _dispersion_T_service += (service_time - _average_T_service) * (service_time - _average_T_service);
+  }
+  _dispersion_T_buffered /= count_processed;
+  _dispersion_T_service /= count_processed;
 }
 
 int APS::SourceStatistic::id() const
@@ -116,6 +132,14 @@ double APS::SourceStatistic::average_TimeBuffered() const
 double APS::SourceStatistic::average_TimeService() const
 {
   return _average_T_service;
+}
+double APS::SourceStatistic::dispersion_TimeBuffered() const
+{
+  return _dispersion_T_buffered;
+}
+double APS::SourceStatistic::dispersion_TimeService() const
+{
+  return _dispersion_T_service;
 }
 
 APS::DeviceStatistic::DeviceStatistic(int device_id, const std::vector< Request > & requests):

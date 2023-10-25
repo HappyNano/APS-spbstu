@@ -274,9 +274,10 @@ void MainWindow::_stepMode_clear()
 
 void MainWindow::_autoMode_showStatistic()
 {
+  double p_reject = 1.f * _engine_ptr->getRejected() / _engine_ptr->getCreated() * 100;
   ui->createdValueLabel_AutoMode->setText(QString::number(_engine_ptr->getCreated()));
   ui->processedValueLabel_AutoMode->setText(QString::number(_engine_ptr->getProcessed()));
-  ui->rejectedValueLabel_AutoMode->setText(QString::number(_engine_ptr->getRejected()));
+  ui->rejectedValueLabel_AutoMode->setText(QString::number(_engine_ptr->getRejected()) + " (" + QString::number(p_reject) + "%)");
 
   auto stat = _engine_ptr->collectStat();
   for (auto && source: stat.sources())
@@ -300,8 +301,12 @@ void MainWindow::_autoMode_showStatistic()
     ui->autoMode_sourcesTable->setItem(ui->autoMode_sourcesTable->rowCount() - 1,
      5,
      new QTableWidgetItem(QString::number(source.second.average_TimeService())));
-    ui->autoMode_sourcesTable->setItem(ui->autoMode_sourcesTable->rowCount() - 1, 6, new QTableWidgetItem(""));
-    ui->autoMode_sourcesTable->setItem(ui->autoMode_sourcesTable->rowCount() - 1, 7, new QTableWidgetItem(""));
+    ui->autoMode_sourcesTable->setItem(ui->autoMode_sourcesTable->rowCount() - 1,
+     6,
+     new QTableWidgetItem(QString::number(source.second.dispersion_TimeBuffered())));
+    ui->autoMode_sourcesTable->setItem(ui->autoMode_sourcesTable->rowCount() - 1,
+     7,
+     new QTableWidgetItem(QString::number(source.second.dispersion_TimeService())));
   }
 
   for (auto && device: stat.devices())

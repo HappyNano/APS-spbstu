@@ -80,7 +80,7 @@ APS::Engine::Engine(size_t sources_count,
     _update_subs.subscribe(event,
      [this, event](const Request & req)
      {
-       this->_printState(event, req);
+       //  this->_printState(event, req);
      });
   }
   _update_subs.subscribe(EngineEvent::DeviceReleased,
